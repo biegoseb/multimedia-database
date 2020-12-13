@@ -7,11 +7,18 @@ import math
 import heapq 
 import numpy as np
 
-ROOT = './data/'
+PATH = './data/'
 EXT = '.jpg'
 
 id_person = {}
 face_encodings = {}
+
+def clear_files():
+  for base, dirs, files in os.walk('./'):
+    if '128d.data' in files:
+      os.remove('128d.data')
+    if '128d.index' in files:
+      os.remove('128d.index')
 
 def euclidian_distance(query_encoding, known_encoding):
   sum = 0
@@ -36,13 +43,13 @@ class RTree:
     p.buffering_capacity = 10 #M
     p.dat_extension = 'data'
     p.idx_extension = 'index'
-    self.idx = index.Index('128d_index', properties=p)
+    self.idx = index.Index('128d', properties=p)
     self.extract_features()
     self.insert_all()
   
   def extract_features(self):
     i = -1
-    for base, dirs, files in os.walk(ROOT):
+    for base, dirs, files in os.walk(PATH):
       i += 1
       encodings = []
       for file in files:
@@ -136,6 +143,7 @@ q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
       3.08285467e-02,  1.64190412e-01,  1.02699265e-01,  1.74490958e-01,
      -2.73696482e-02, -2.40529403e-02, -1.68477818e-01, -7.69579336e-02,
      -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
+clear_files()
 r_tree = RTree()
 print("Priority KNN: ", r_tree.priority_knn(q, 3))
 print("Sequential KNN: ", sequential_knn(q, 3))
