@@ -3,98 +3,117 @@ from rtree import index
 import os
 from os.path import join
 import math
-from queue import PriorityQueue
+import heapq 
 import numpy as np
 
 ROOT = './data3/'
 EXT = '.jpg'
 
-def extract_features():
-  face_encodings = {}
-  c = 0
-  for base, dirs, files in os.walk(ROOT):
-    for file in files:
-      img = join(base, file)
-      c += 1
-      print(c,img)
-      if img.endswith(EXT):    
-        picture = face_recognition.load_image_file(img)
-        try:
-          encoding = face_recognition.face_encodings(picture)[0] # feature vector
-        except IndexError as e:
-          print(e)
-        face_encodings[img] = encoding
-  return face_encodings
-
-
-print(extract_features())
-
 class RTree:
   idx = None
+  id_person = {}
+  face_encodings = {}
   def __init__(self):
     p = index.Property()
     p.dimension = 128 #D
     p.buffering_capacity = 10 #M
     p.dat_extension = 'data'
     p.idx_extension = 'index'
-    self.idx = index.Index('multimedia_index', properties=p)
+    self.idx = index.Index('128d_index', properties=p)
+    self.extract_features()
+    self.insert_all()
   
-  def insert(self, features_vectors):
+  def extract_features(self):
+    i = -1
+    for base, dirs, files in os.walk(ROOT):
+      i += 1
+      encodings = []
+      for file in files:
+        img = join(base, file)
+        if img.endswith(EXT):    
+          picture = face_recognition.load_image_file(img)
+          if len(face_recognition.face_encodings(picture)) > 0:
+            encoding = face_recognition.face_encodings(picture)[0] # feature vector
+            encodings.append(encoding)
+        self.face_encodings[base.replace('./data3/','')] = encodings
+      #if i >= 1:
+        #print(i, base)
+    #print(self.face_encodings)
+  
+  def insert_all(self):   
     id = 0
-    for img, vector in features_vectors:
-      self.idx.insert(id, (vector, vector), img)
-      id += 1
+    for person, encodings in self.face_encodings.items():
+      for encoding in encodings:
+        point = tuple(encoding)
+        point += point
+        self.id_person[id] = person
+        self.idx.insert(id, point)
+        id += 1
   
   def euclidian_distance(self, query_encoding, known_encoding):
-    #sum = 0
-    #for i in range(len(query_encoding)): #128
-    #    sum += math.pow((query_encoding[i] - known_encoding[i]), 2)
-    #return math.sqrt(sum)
-    a = np.array(query_encoding)
-    b = np.array(known_encoding)
-    return np.linalg.norm(a[:, None, :] - b[None, :, :], axis=-1)
+    sum = 0
+    for i in range(len(query_encoding)): #128
+        sum += math.pow((query_encoding[i] - known_encoding[i]), 2)
+    return math.sqrt(sum)
 
   def sequential_knn(self, query, k_results):
-    #queue = PriorityQueue()
-    #for img, enconding in
-    pass
+    q = tuple(query)
+    q += q
+    lres = list(self.idx.nearest(coordinates=q, num_results=k_results))
+    return lres #self.id_person[lres[0]]
 
   def priority_knn(self, query, k_results):
-    pass
+    result = []
+    #q = tuple(query)
+    #q += q
+    #print([n for n in self.idx.intersection(q)])
+    #  print(n)
+    for person, encodings in self.face_encodings.items(): #O(N x D) + O(N x log#(k_results))
+      for encoding in encodings:
+        distance = self.euclidian_distance(query, encoding)
+        heapq.heappush(result, (-distance, person)) # MinHeap -> MaxHeap
+        if len(result) > k_results:
+          heapq.heappop(result)
+    result = [(i, -d) for d, i in result]
+    result.sort(key=lambda tup:tup[1]) #O(k_results x log(k_results))
+    return result
 
-q = [-8.17060545e-02,  1.10632911e-01,  1.34635970e-01, -1.34403482e-01,
-       -1.03805944e-01,  8.44166055e-02, -1.04080759e-01, -4.16047908e-02,
-        1.95701629e-01, -1.67427927e-01,  1.79220498e-01,  4.48846333e-02,
-       -2.17200279e-01,  6.77665472e-02, -3.55402976e-02,  2.01166853e-01,
-       -2.27251306e-01, -5.37830144e-02, -7.88426325e-02, -2.99380627e-02,
-       -5.41799702e-03,  8.20221528e-02, -1.25187682e-04,  6.92237914e-02,
-       -1.15610182e-01, -3.63576800e-01, -6.08736798e-02, -6.05255850e-02,
-       -2.44289264e-02, -5.58598526e-02, -7.78094083e-02, -2.90645007e-02,
-       -6.81176335e-02,  5.42129278e-02,  6.98324293e-04,  7.18935579e-02,
-       -7.29248151e-02, -1.48384139e-01,  1.47973537e-01,  5.41693382e-02,
-       -2.34226465e-01,  3.83732170e-02,  2.91751847e-02,  2.40074784e-01,
-        3.28711182e-01, -4.04151827e-02,  4.47870456e-02, -2.15760060e-02,
-        1.78307265e-01, -3.14212501e-01,  2.04810128e-02,  1.35312125e-01,
-        3.91880274e-02,  6.35476112e-02,  1.31961435e-01, -8.78701955e-02,
-       -3.88183370e-02,  1.23081788e-01, -1.28752261e-01, -2.97301523e-02,
-        4.80069965e-02, -9.37548839e-03,  4.22566161e-02, -2.79410984e-02,
-        1.64822400e-01,  1.41396657e-01, -1.61143333e-01, -1.78153545e-01,
-        1.48894235e-01, -1.58329651e-01, -4.88454066e-02,  5.30780666e-02,
-       -1.78077221e-01, -1.90231964e-01, -1.94352537e-01,  4.54105809e-02,
-        3.89185637e-01,  2.28393301e-01, -1.17950879e-01,  1.46170231e-02,
-       -1.09868877e-01, -3.77075411e-02,  4.81450930e-02,  1.11299857e-01,
-        4.63757925e-02, -4.51420099e-02, -4.33302820e-02,  5.20643741e-02,
-        1.98564082e-01, -3.14868465e-02, -2.29052585e-02,  2.81788141e-01,
-        2.89902501e-02, -4.97175492e-02, -1.45653421e-02,  9.27092656e-02,
-       -1.35954052e-01,  2.73514017e-02, -1.44894689e-01, -5.45141473e-02,
-        3.24090123e-02,  3.19179222e-02,  5.52787185e-02,  1.46901757e-01,
-       -1.94407806e-01,  2.09360659e-01, -5.40934764e-02,  2.66586021e-02,
-        6.41235709e-02,  4.35599200e-02, -1.08820818e-01, -2.82902420e-02,
-        1.68558180e-01, -2.08340645e-01,  8.23031738e-02,  1.56753868e-01,
-        2.41979342e-02,  8.08062181e-02,  5.07892706e-02,  3.29900756e-02,
-        3.31640169e-02, -2.94894800e-02, -1.33808047e-01, -8.35199803e-02,
-       -1.20777534e-02,  6.05441816e-03,  3.82863060e-02,  1.89689863e-02]
-
-idx1 = RTree()
-lres = list(idx1.idx.nearest(coordinates=q, num_results=3))
-print("Vecino mas cercano es: ", lres)
+# Adam Herbert
+q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
+      2.28712019e-02, -1.39828399e-03, -6.87419176e-02, -4.42669354e-02,
+      1.22500800e-01, -6.06134012e-02,  2.02753022e-01, -6.36082934e-03,
+     -2.17242450e-01, -9.78881717e-02,  4.49896827e-02,  9.26477611e-02,
+     -1.52959853e-01, -9.35620368e-02, -1.43870279e-01, -3.40235457e-02,
+      1.75849479e-02, -2.83234473e-02,  5.63562773e-02, -3.50938644e-04,
+     -1.05743632e-01, -3.70030224e-01, -9.04477760e-02, -6.96004331e-02,
+      2.31702775e-02, -9.62972790e-02,  1.08853690e-02,  3.31265926e-02,
+     -1.22479446e-01, -4.53323275e-02, -6.48580771e-03,  1.86511770e-01,
+     -4.01124321e-02, -3.80056351e-02,  1.80485606e-01,  4.21522520e-02,
+     -1.25692442e-01,  4.26428355e-02, -3.65151614e-02,  2.37538755e-01,
+      2.43660599e-01,  9.46232602e-02,  2.16111876e-02, -7.63924718e-02,
+      8.86106640e-02, -2.31042743e-01,  1.12985276e-01,  1.88004851e-01,
+      9.78572965e-02,  1.29169047e-01,  8.78251567e-02, -1.17875651e-01,
+      6.47547543e-02,  1.34579882e-01, -1.89067379e-01,  1.79654155e-02,
+     -2.04601996e-02, -1.07527092e-01,  6.69555552e-03, -2.09217574e-02,
+      1.25626385e-01,  1.18705645e-01, -6.49905577e-02, -1.14510834e-01,
+      1.69617102e-01, -1.15009055e-01, -8.06217343e-02,  9.47106071e-03,
+     -1.06643319e-01, -1.41750485e-01, -2.59348154e-01,  2.85650846e-02,
+      3.53699714e-01,  1.22421354e-01, -2.37807542e-01,  2.14618072e-03,
+     -1.14982933e-01, -1.06856585e-01,  2.72826552e-02,  2.93514766e-02,
+     -6.31333664e-02, -7.60509595e-02, -1.12680361e-01, -1.43936723e-02,
+      1.58955827e-01, -1.77538600e-02, -1.35961827e-03,  1.60439938e-01,
+     -3.55376489e-03,  1.64712630e-02,  7.72328302e-02,  2.40266994e-02,
+     -1.15281515e-01,  6.49038255e-02, -1.58196956e-01, -1.09264910e-01,
+      6.59492612e-02, -1.52538687e-01, -2.91352905e-02,  3.32798883e-02,
+     -2.33941197e-01,  2.14188188e-01,  5.02633415e-02, -3.62857021e-02,
+      8.78258348e-02,  1.65613908e-02, -1.04529910e-01, -3.52109149e-02,
+      2.60774076e-01, -2.42391914e-01,  2.14160234e-01,  2.67838150e-01,
+      3.08285467e-02,  1.64190412e-01,  1.02699265e-01,  1.74490958e-01,
+     -2.73696482e-02, -2.40529403e-02, -1.68477818e-01, -7.69579336e-02,
+     -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
+r_tree = RTree()
+print(r_tree.idx.leaves())
+#print(r_tree.sequential_knn(q, 1))
+#lres = r_tree.sequential_knn(query, 1)
+#r_tree.priority_knn(q, 3)
+#print("Vecino mas cercano es: ", pres))
