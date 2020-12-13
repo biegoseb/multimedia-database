@@ -35,6 +35,15 @@ def sequential_knn(query, k_results):
   result.sort(key=lambda tup:tup[1]) # O(N x logN)
   return result[:k_results]
 
+def get_img_vector(img):
+  picture = face_recognition.load_image_file(img)
+  try:
+    encoding = face_recognition.face_encodings(picture)[0] # feature vector
+    return encoding
+  except IndexError as e:
+    print(e, "No face detected")
+
+
 class RTree:
   idx = None
   def __init__(self):
@@ -145,5 +154,7 @@ q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
      -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
 clear_files()
 r_tree = RTree()
-print("Priority KNN: ", r_tree.priority_knn(q, 3))
+print("Priority KNN  : ", r_tree.priority_knn(q, 3))
 print("Sequential KNN: ", sequential_knn(q, 3))
+#v = get_img_vector('data/Adam_Scott/Adam_Scott_0001.jpg')
+#print(v)
