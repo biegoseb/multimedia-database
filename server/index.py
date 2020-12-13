@@ -10,10 +10,26 @@ import numpy as np
 ROOT = './data/'
 EXT = '.jpg'
 
+id_person = {}
+face_encodings = {}
+
+def euclidian_distance(query_encoding, known_encoding):
+  sum = 0
+  for i in range(len(query_encoding)): #D=128
+      sum += math.pow((query_encoding[i] - known_encoding[i]), 2)
+  return math.sqrt(sum)
+
+def sequential_knn(query, k_results):
+  result = []
+  for person, encodings in face_encodings.items(): # O(N x D)
+    for encoding in encodings:
+      dist = euclidian_distance(query, encoding)
+      result.append((person, dist))
+  result.sort(key=lambda tup:tup[1]) # O(N x logN)
+  return result[:k_results]
+
 class RTree:
   idx = None
-  id_person = {}
-  face_encodings = {}
   def __init__(self):
     p = index.Property()
     p.dimension = 128 #D
@@ -36,26 +52,20 @@ class RTree:
           if len(face_recognition.face_encodings(picture)) > 0:
             encoding = face_recognition.face_encodings(picture)[0] # feature vector
             encodings.append(encoding)
-        self.face_encodings[base.replace('./data/','')] = encodings
-      if i >= 1:
-        print(i, base)
-    #print(self.face_encodings)
+        face_encodings[base.replace('./data/','')] = encodings
+      #if i >= 1:
+      #  print(i, base)
+    #print(face_encodings)
   
   def insert_all(self):   
     id = 0
-    for person, encodings in self.face_encodings.items():
+    for person, encodings in face_encodings.items():
       for encoding in encodings:
         point = tuple(encoding)
         point += point
-        self.id_person[id] = (person,encoding)
+        id_person[id] = (person,encoding)
         self.idx.insert(id, point)
         id += 1
-  
-  def euclidian_distance(self, query_encoding, known_encoding):
-    sum = 0
-    for i in range(len(query_encoding)): #D=128
-        sum += math.pow((query_encoding[i] - known_encoding[i]), 2)
-    return math.sqrt(sum)
 
   def mindist(self, query, region):
     sum = 0
@@ -68,22 +78,10 @@ class RTree:
       else:
         r = query[i]
       sum += math.pow((query[i] - r), 2)
-    return math.sqrt(sum)
-  
-  def sequential_knn(self, query, k_results):
-    q = tuple(query)
-    q += q
-    lres = list(self.idx.nearest(coordinates=q, num_results=k_results))
-    return lres #self.id_person[lres[0]]
+    return math.sqrt(sum) 
 
-  def search(self, query, k_results):
+  def priority_knn(self, query, k_results):
     heap = []
-    self.priority_knn(heap, query, k_results)
-    heap = [(person, -dist) for dist, person in heap]
-    heap.sort(key=lambda tup:tup[1]) # O(k_results x log(k_results))
-    return heap
-
-  def priority_knn(self, heap, query, k_results):
     min_distance = sys.float_info.max
     leaf_region = None
     for leaf in self.idx.leaves():
@@ -91,9 +89,9 @@ class RTree:
         min_distance = self.mindist(query, leaf[2])
         leaf_region = leaf
     for point in leaf_region[1]: # leaf_region[1] -> points
-      person = self.id_person[point][0]
-      encoding = self.id_person[point][1]
-      distance = self.euclidian_distance(query, encoding)
+      person = id_person[point][0]
+      encoding = id_person[point][1]
+      distance = euclidian_distance(query, encoding)
       if len(heap) < k_results:
         heapq.heappush(heap, (-distance, person))
       else:
@@ -101,6 +99,9 @@ class RTree:
         if distance <= -r[0]:
           heapq.heappush(heap, (-distance, person))
           heapq.heappop(heap)
+    heap = [(person, -dist) for dist, person in heap]
+    heap.sort(key=lambda tup:tup[1]) # O(k_results x log(k_results))
+    return heap
 
 # Adam Herbert
 q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
@@ -136,4 +137,5 @@ q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
      -2.73696482e-02, -2.40529403e-02, -1.68477818e-01, -7.69579336e-02,
      -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
 r_tree = RTree()
-print(r_tree.search(q, 3))
+print("Priority KNN: ", r_tree.priority_knn(q, 3))
+print("Sequential KNN: ", sequential_knn(q, 3))
