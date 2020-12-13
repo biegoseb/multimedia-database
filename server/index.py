@@ -6,7 +6,7 @@ import math
 import heapq 
 import numpy as np
 
-ROOT = './data3/'
+ROOT = './data/'
 EXT = '.jpg'
 
 class RTree:
@@ -35,7 +35,7 @@ class RTree:
           if len(face_recognition.face_encodings(picture)) > 0:
             encoding = face_recognition.face_encodings(picture)[0] # feature vector
             encodings.append(encoding)
-        self.face_encodings[base.replace('./data3/','')] = encodings
+        self.face_encodings[base.replace('./data/','')] = encodings
       #if i >= 1:
         #print(i, base)
     #print(self.face_encodings)
