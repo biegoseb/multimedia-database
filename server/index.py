@@ -1,7 +1,8 @@
 import face_recognition
 from rtree import index
-import os
 from os.path import join
+import os
+import sys
 import math
 import heapq 
 import numpy as np
@@ -36,8 +37,8 @@ class RTree:
             encoding = face_recognition.face_encodings(picture)[0] # feature vector
             encodings.append(encoding)
         self.face_encodings[base.replace('./data/','')] = encodings
-      #if i >= 1:
-        #print(i, base)
+      if i >= 1:
+        print(i, base)
     #print(self.face_encodings)
   
   def insert_all(self):   
@@ -46,37 +47,60 @@ class RTree:
       for encoding in encodings:
         point = tuple(encoding)
         point += point
-        self.id_person[id] = person
+        self.id_person[id] = (person,encoding)
         self.idx.insert(id, point)
         id += 1
   
   def euclidian_distance(self, query_encoding, known_encoding):
     sum = 0
-    for i in range(len(query_encoding)): #128
+    for i in range(len(query_encoding)): #D=128
         sum += math.pow((query_encoding[i] - known_encoding[i]), 2)
     return math.sqrt(sum)
 
+  def mindist(self, query, region):
+    sum = 0
+    for i in range(len(query)): #D=128
+      r = None
+      if query[i] < region[i]:
+        r = region[i]
+      elif query[i] > region[i + 128]:
+        r = region[i + 128]
+      else:
+        r = query[i]
+      sum += math.pow((query[i] - r), 2)
+    return math.sqrt(sum)
+  
   def sequential_knn(self, query, k_results):
     q = tuple(query)
     q += q
     lres = list(self.idx.nearest(coordinates=q, num_results=k_results))
     return lres #self.id_person[lres[0]]
 
-  def priority_knn(self, query, k_results):
-    result = []
-    #q = tuple(query)
-    #q += q
-    #print([n for n in self.idx.intersection(q)])
-    #  print(n)
-    for person, encodings in self.face_encodings.items(): #O(N x D) + O(N x log#(k_results))
-      for encoding in encodings:
-        distance = self.euclidian_distance(query, encoding)
-        heapq.heappush(result, (-distance, person)) # MinHeap -> MaxHeap
-        if len(result) > k_results:
-          heapq.heappop(result)
-    result = [(i, -d) for d, i in result]
-    result.sort(key=lambda tup:tup[1]) #O(k_results x log(k_results))
-    return result
+  def search(self, query, k_results):
+    heap = []
+    self.priority_knn(heap, query, k_results)
+    heap = [(person, -dist) for dist, person in heap]
+    heap.sort(key=lambda tup:tup[1]) # O(k_results x log(k_results))
+    return heap
+
+  def priority_knn(self, heap, query, k_results):
+    min_distance = sys.float_info.max
+    leaf_region = None
+    for leaf in self.idx.leaves():
+      if self.mindist(query, leaf[2]) < min_distance: # leaf[2] -> region bounds
+        min_distance = self.mindist(query, leaf[2])
+        leaf_region = leaf
+    for point in leaf_region[1]: # leaf_region[1] -> points
+      person = self.id_person[point][0]
+      encoding = self.id_person[point][1]
+      distance = self.euclidian_distance(query, encoding)
+      if len(heap) < k_results:
+        heapq.heappush(heap, (-distance, person))
+      else:
+        r = heap[0] # front
+        if distance <= -r[0]:
+          heapq.heappush(heap, (-distance, person))
+          heapq.heappop(heap)
 
 # Adam Herbert
 q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
@@ -112,8 +136,4 @@ q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
      -2.73696482e-02, -2.40529403e-02, -1.68477818e-01, -7.69579336e-02,
      -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
 r_tree = RTree()
-print(r_tree.idx.leaves())
-#print(r_tree.sequential_knn(q, 1))
-#lres = r_tree.sequential_knn(query, 1)
-#r_tree.priority_knn(q, 3)
-#print("Vecino mas cercano es: ", pres))
+print(r_tree.search(q, 3))
