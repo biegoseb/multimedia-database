@@ -62,7 +62,7 @@ export default {
       const formData = new FormData();
       formData.append("file", this.files);
       const data = {
-        k: this.k,
+        k: Number(this.k),
         nombre: this.nombre,
       };
       formData.append("data", JSON.stringify(data));
