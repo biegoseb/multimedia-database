@@ -28,9 +28,9 @@ def euclidian_distance(query_encoding, known_encoding):
 def sequential_knn(query, k_results):
   result = []
   for person, encodings in face_encodings.items(): # O(N x D)
-    for encoding in encodings:
+    for img, encoding in encodings:
       dist = euclidian_distance(query, encoding)
-      result.append((person, dist))
+      result.append((person, dist, img))
   result.sort(key=lambda tup:tup[1]) # O(N x logN)
   return result[:k_results]
 
@@ -68,9 +68,8 @@ class RTree:
             encoding = face_recognition.face_encodings(picture)[0] # feature vector
             encodings.append((img.replace('./data/',''), encoding))
         face_encodings[base.replace('./data/','')] = encodings
-      #if i >= 1:
-      #  print(i, base)
-    #print(face_encodings)
+      if i >= 1:
+        print(i, base)
   
   def insert_all(self):   
     id = 0

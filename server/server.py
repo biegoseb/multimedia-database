@@ -18,7 +18,7 @@ def query():
     filename = secure_filename(file.filename)
   file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
   q = r_tree.get_img_vector(file)
-  lres = index.priority_knn(q, k)
+  lres = r_tree.sequential_knn(q, k)
   return Response(json.dumps(lres), status = 202, mimetype="application/json")
 
 @app.route('/', methods=["GET"])
