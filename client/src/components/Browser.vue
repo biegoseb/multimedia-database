@@ -83,38 +83,40 @@
       </div>
     </div>
     <div class="row">
-      <v-card
-        :key="index"
-        width="374"
-        class="my-2"
-        v-for="(person, index) in responseSplit"
-      >
-        <div class="image-upload">
-          <label class="cat-photo">
-            <b-img class="cat-photo" :src="person[2]"></b-img>
-          </label>
-        </div>
-        <v-card-text class="p-1">
-          <b-container class="p-3">
-            <b-row align-v="center">
-              <b-col md="3" class="p-0">
-                Name:
-              </b-col>
-              <b-col class="p-0">
-                <b-input v-model="person[0]"></b-input>
-              </b-col>
-            </b-row>
-            <b-row align-v="center">
-              <b-col md="3" class="p-0">
-                Distance:
-              </b-col>
-              <b-col class="p-0">
-                <b-input v-model="person[1]"></b-input>
-              </b-col>
-            </b-row>
-          </b-container>
-        </v-card-text>
-      </v-card>
+      <div class="col-4" :key="persons" v-for="persons in chunkPersons">
+        <v-card
+          :key="index"
+          width="374"
+          class="my-3"
+          v-for="(person, index) in persons"
+        >
+          <div class="image-upload">
+            <label class="cat-photo">
+              <b-img class="cat-photo" :src="person[2]"></b-img>
+            </label>
+          </div>
+          <v-card-text class="p-1">
+            <b-container class="p-3">
+              <b-row align-v="center">
+                <b-col md="3" class="p-0">
+                  Name:
+                </b-col>
+                <b-col class="p-0">
+                  <b-input v-model="person[0]"></b-input>
+                </b-col>
+              </b-row>
+              <b-row align-v="center">
+                <b-col md="3" class="p-0">
+                  Distance:
+                </b-col>
+                <b-col class="p-0">
+                  <b-input v-model="person[1]"></b-input>
+                </b-col>
+              </b-row>
+            </b-container>
+          </v-card-text>
+        </v-card>
+      </div>
     </div>
   </div>
 </template>
@@ -147,8 +149,8 @@ export default {
       return this.response.slice(6 * (this.page - 1), 6 * this.page);
     },
     chunkPersons() {
-      return chunk(this.responseSplit, 3)
-    }
+      return this.chunk(this.responseSplit, 2);
+    },
   },
   methods: {
     submitFile() {
@@ -196,8 +198,10 @@ export default {
       reader.readAsDataURL(file);
     },
     chunk(arr, size) {
-      Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size) );
-    }
+      Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+        arr.slice(i * size, i * size + size)
+      );
+    },
   },
 };
 </script>
