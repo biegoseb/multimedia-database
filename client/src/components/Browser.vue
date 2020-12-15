@@ -144,8 +144,11 @@ export default {
   }),
   computed: {
     responseSplit() {
-      return this.response.slice(7 * (this.page - 1), 6 * this.page);
+      return this.response.slice(6 * (this.page - 1), 6 * this.page);
     },
+    chunkPersons() {
+      return chunk(this.responseSplit, 3)
+    }
   },
   methods: {
     submitFile() {
@@ -162,7 +165,6 @@ export default {
       axios
         .post("http://127.0.0.1:8082/query", formData, {
           headers: {
-            /* "Content-Type": "multipart/form-data", */
             "Content-Type": false,
             processData: false,
           },
@@ -175,7 +177,7 @@ export default {
             this.response[i][2] = require("../../../server/data/" +
               this.response[i][2]);
           }
-          this.length = Math.floor(res.data.length / 6);
+          this.length = Math.ceil(res.data.length / 6);
         })
         .catch((e) => {
           console.log(e);
@@ -193,6 +195,9 @@ export default {
       };
       reader.readAsDataURL(file);
     },
+    chunk(arr, size) {
+      Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size) );
+    }
   },
 };
 </script>
@@ -214,7 +219,12 @@ export default {
   height: 400px;
   width: 375px;
 }
+
 .cat-photo img {
   object-fit: fill;
+}
+
+.theme--light.v-pagination .v-pagination__item--active {
+  background-color: #0062cc !important;
 }
 </style>
