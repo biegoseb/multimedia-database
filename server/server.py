@@ -3,11 +3,10 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import r_tree
 import json
+import os
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './queries/'
-r_tree.clear_files()
-index = r_tree.RTree()
 
 CORS(app)
 
@@ -21,9 +20,9 @@ def query():
   return render_template("public/upload_image.html") """
 
   print(request.files)
-  file = request.files['image']
+  file = request.files['file']
   print(request.form)
-  k = request.form['k']
+  k = json.loads(request.form['data'])['k']
   print('debug2')
   if file.filename != '':
     print('debug3')
@@ -42,6 +41,7 @@ def index():
     return render_template("index.html")
 
 if __name__ == '__main__':
-    # index.create_inverted_index()
+    r_tree.clear_files()
+    index = r_tree.RTree()
     app.secret_key = ".."
     app.run(port=8082, threaded=True, host=('127.0.0.1'))
