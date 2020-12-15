@@ -35,6 +35,9 @@
       <button class="btn btn-primary" @click="submitFile()">Submit</button>
     </div>
     <div class="row">
+      Results:
+    </div>
+    <div class="row">
       <v-card
         :key="index"
         width="374"
@@ -106,6 +109,10 @@ export default {
           console.log("Respuesta local");
           console.log(res);
           this.response = res.data;
+          for (let i = 0; i < res.size(); i++) {
+            this.response[i][2] = require("../../../server/data/" +
+              this.response[i][2]);
+          }
         })
         .catch((e) => {
           console.log(e);
