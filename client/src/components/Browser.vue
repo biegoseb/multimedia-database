@@ -20,7 +20,18 @@
         </div>
         <v-card-text class="p-1">
           <b-container class="px-4 py-2">
-            <b-row align-v="center">
+            <b-row align-v="center" class="my-1">
+              <b-col md="4" class="p-0">
+                Type of Search:
+              </b-col>
+              <b-col class="p-0">
+                <b-form-select
+                  v-model="search"
+                  :options="options"
+                ></b-form-select>
+              </b-col>
+            </b-row>
+            <b-row align-v="center" class="my-1" v-if="search != 'range'">
               <b-col md="4" class="p-0">
                 K results:
               </b-col>
@@ -33,18 +44,7 @@
                 ></b-input>
               </b-col>
             </b-row>
-            <b-row align-v="center">
-              <b-col md="4" class="p-0">
-                Type of Search:
-              </b-col>
-              <b-col class="p-0">
-                <b-form-select
-                  v-model="search"
-                  :options="options"
-                ></b-form-select>
-              </b-col>
-            </b-row>
-            <b-row align-v="center" v-if="search == 'range'">
+            <b-row align-v="center" v-if="search == 'range'" class="my-1">
               <b-col md="4" class="p-0">
                 Radius:
               </b-col>
@@ -82,14 +82,9 @@
         ></v-pagination>
       </div>
     </div>
-    <div class="row">
-      <div class="col-4" :key="persons" v-for="persons in chunkPersons">
-        <v-card
-          :key="index"
-          width="374"
-          class="my-3"
-          v-for="(person, index) in persons"
-        >
+    <div class="row" :key="ind" v-for="(persons, ind) in chunkPersons">
+      <div class="col-4" :key="index" v-for="(person, index) in persons">
+        <v-card width="374" class="my-3">
           <div class="image-upload">
             <label class="cat-photo">
               <b-img class="cat-photo" :src="person[2]"></b-img>
@@ -97,7 +92,15 @@
           </div>
           <v-card-text class="p-1">
             <b-container class="p-3">
-              <b-row align-v="center">
+              <b-row align-v="center" class="my-1">
+                <b-col md="3" class="p-0">
+                  Position:
+                </b-col>
+                <b-col class="p-0">
+                  <b-input :value="calculateIndex(person)"></b-input>
+                </b-col>
+              </b-row>
+              <b-row align-v="center" class="my-1">
                 <b-col md="3" class="p-0">
                   Name:
                 </b-col>
@@ -105,7 +108,7 @@
                   <b-input v-model="person[0]"></b-input>
                 </b-col>
               </b-row>
-              <b-row align-v="center">
+              <b-row align-v="center" class="my-1">
                 <b-col md="3" class="p-0">
                   Distance:
                 </b-col>
@@ -149,7 +152,7 @@ export default {
       return this.response.slice(6 * (this.page - 1), 6 * this.page);
     },
     chunkPersons() {
-      return this.chunk(this.responseSplit, 2);
+      return this.chunk(this.responseSplit, 3);
     },
   },
   methods: {
@@ -161,7 +164,7 @@ export default {
         search: this.search == "" ? "priority" : this.search,
       };
       if (this.radius != null) {
-        data["radius"] = this.radius;
+        data["radius"] = Number(this.radius);
       }
       formData.append("data", JSON.stringify(data));
       axios
@@ -198,8 +201,18 @@ export default {
       reader.readAsDataURL(file);
     },
     chunk(arr, size) {
-      Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+      return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
         arr.slice(i * size, i * size + size)
+      );
+    },
+    calculateIndex(person) {
+      return (
+        this.response
+          .map((iter) => {
+            console.log(iter);
+            return iter[2];
+          })
+          .indexOf(person[2]) + 1
       );
     },
   },
@@ -218,10 +231,8 @@ export default {
 }
 
 .cat-photo {
-  /* height: 40vh;
-  width: 40.2vw; */
   height: 400px;
-  width: 375px;
+  width: auto;
 }
 
 .cat-photo img {
