@@ -27,6 +27,14 @@
                 <b-input v-model="nombre"></b-input>
               </b-col>
             </b-row>
+            <b-row align-v="center">
+              <b-col md="3" class="p-0">
+                Number K:
+              </b-col>
+              <b-col class="p-0">
+                <b-input v-model="k"></b-input>
+              </b-col>
+            </b-row>
           </b-container>
         </v-card-text>
       </v-card>
@@ -44,6 +52,7 @@ export default {
   name: "Browser",
   data: () => ({
     nombre: "",
+    k: "",
     src: "",
     files: [],
     photoPlaceholder: require("../static/img/38.jpg"),
@@ -53,7 +62,7 @@ export default {
       const formData = new FormData();
       formData.append("file", this.files);
       const data = {
-        k: 1,
+        k: this.k,
         nombre: this.nombre,
       };
       formData.append("data", JSON.stringify(data));
