@@ -1,16 +1,10 @@
 import face_recognition
 from rtree import index
 from os.path import join
-import os
-import sys
+import sys, os
 import math
 import heapq 
 import numpy as np
-
-from flask import Flask, request, Response, render_template
-from flask_cors import CORS
-import json, sys, os
-from werkzeug.utils import secure_filename
 
 PATH = './data/'
 EXT = '.jpg'
@@ -158,6 +152,31 @@ q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
       3.08285467e-02,  1.64190412e-01,  1.02699265e-01,  1.74490958e-01,
      -2.73696482e-02, -2.40529403e-02, -1.68477818e-01, -7.69579336e-02,
      -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
+
+# Sagasti
+sagasti = [-0.04388325,  0.08636447,  0.00740112, -0.11340982, -0.07251073,  0.06708346,
+           -0.00214581, -0.05114206,  0.14976943,  0.00068636,  0.1698042 , -0.03777033,
+           -0.26229391,  0.04498326, -0.05950817,  0.07186246, -0.22964758,  0.01412559,
+           -0.22676213, -0.15868887, -0.02888724,  0.15669826,  0.09247879,  0.00218791,
+           -0.09244427, -0.27623978, -0.07943413, -0.13096462,  0.10875303, -0.11547134,
+            0.04305288, -0.02516632, -0.20949079, -0.07785788,  0.06227748, -0.0361296,
+           -0.07694005, -0.09169348,  0.13331431,  0.02937641, -0.06195091,  0.02420534,
+            0.09387225,  0.22266592,  0.18958504,  0.08399098, -0.00851541, -0.11568355,
+            0.07180073, -0.28698865,  0.17485631,  0.10737325,  0.10871355,  0.07405763,
+            0.16998234, -0.17623222,  0.00128484,  0.13433544, -0.08543238,  0.13344043,
+            0.07027915,  0.00834422, -0.02108626, -0.04548386,  0.10838822,  0.073659,
+           -0.07993541, -0.17658746,  0.09692895, -0.14512962, -0.04623122,  0.09002209,
+           -0.05711326, -0.15257491, -0.2654441 ,  0.05597412,  0.48137558,  0.18501423,
+           -0.19346209, -0.0175518 , -0.12415781, -0.04067444,  0.08482124,  0.04761392,
+           -0.09880095, -0.10778631, -0.05232498,  0.03266819,  0.16248484, -0.06929194,
+           -0.11913073,  0.18797506, -0.00497043, -0.0391056 ,  0.01995035, -0.00416033,
+           -0.15566687, -0.01692763, -0.07490887, -0.02968643,  0.02580032, -0.069192,
+           -0.05955453,  0.09933162, -0.16125791,  0.1779259 ,  0.01008272, -0.13790442,
+            0.03126442,  0.01375106, -0.08122745, -0.01843515,  0.20970128, -0.30781066,
+            0.21092011,  0.19706464, -0.00336648,  0.18440998,  0.0130247 ,  0.13745371,
+            0.05147406,  0.09820212, -0.10302395, -0.14900856,  0.00138092,  0.00886786,
+           -0.01493349,  0.0097323]
+
 '''
 clear_files()
 r_tree = RTree()
@@ -166,37 +185,3 @@ print("Sequential KNN: ", sequential_knn(q, 3))
 #v = get_img_vector('data/Adam_Scott/Adam_Scott_0001.jpg')
 #print(v)
 '''
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = './queries/'
-clear_files()
-index = RTree()
-
-CORS(app)
-
-@app.route('/query', methods=["POST"])
-def query():
-  file = request.form['file']
-  print(json.loads(file))
-  k = request.form['k']
-  print('debug2')
-  # if file.filename != '':
-    # print('debug3')
-    # filename = secure_filename(file.filename)
-    # print('debug4')
-  file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-  print('debug5')
-  q = get_img_vector(file)
-  print('debug6')
-  lres = index.priority_knn(q, k)
-  print('debug7')
-  return Response(json.dumps(lres), status = 202, mimetype="application/json")
-
-@app.route('/', methods=["GET"])
-def index():
-    return render_template("index.html")
-
-if __name__ == '__main__':
-    # index.create_inverted_index()
-    app.secret_key = ".."
-    app.run(port=8082, threaded=True, host=('127.0.0.1'))

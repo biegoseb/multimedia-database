@@ -1,8 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <v-file-input
-        v-model="files"
+      <!-- <v-file-input
         color="deep-purple accent-4"
         counter
         label="File input"
@@ -30,7 +29,8 @@
             +{{ files.length - 2 }} File(s)
           </span>
         </template>
-      </v-file-input>
+      </v-file-input> -->
+      <input type="file" id="files" ref="files" multiple v-on:change="handleFileUpload()"/> 
     </div>
     <div class="row justify-content-end">
       <button class="btn btn-primary" @click="submitFile()">Submit</button>
@@ -67,7 +67,7 @@ export default {
         });
     },
     handleFileUpload() {
-      this.file = this.$refs.file.files[0];
+      this.files = this.$refs.files[0];
     },
   },
 };
