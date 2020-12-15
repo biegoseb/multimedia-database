@@ -7,6 +7,11 @@ import math
 import heapq 
 import numpy as np
 
+from flask import Flask, request, Response, render_template
+from flask_cors import CORS
+import json, sys, os
+from werkzeug.utils import secure_filename
+
 PATH = './data/'
 EXT = '.jpg'
 
@@ -101,6 +106,7 @@ class RTree:
     min_distance = sys.float_info.max
     leaf_region = None
     for leaf in self.idx.leaves():
+      print('hola')
       if self.mindist(query, leaf[2]) < min_distance: # leaf[2] -> region bounds
         min_distance = self.mindist(query, leaf[2])
         leaf_region = leaf
@@ -152,9 +158,38 @@ q = [-3.19065750e-02,  8.69898424e-02,  8.07745680e-02, -3.87815610e-02,
       3.08285467e-02,  1.64190412e-01,  1.02699265e-01,  1.74490958e-01,
      -2.73696482e-02, -2.40529403e-02, -1.68477818e-01, -7.69579336e-02,
      -4.31553572e-02,  9.20310691e-02, -1.32388296e-02,  8.49268064e-02]
+'''
 clear_files()
 r_tree = RTree()
 print("Priority KNN  : ", r_tree.priority_knn(q, 3))
 print("Sequential KNN: ", sequential_knn(q, 3))
 #v = get_img_vector('data/Adam_Scott/Adam_Scott_0001.jpg')
 #print(v)
+'''
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = './queries/'
+clear_files()
+index = RTree()
+
+CORS(app)
+
+@app.route('/query', methods=["POST"])
+def query():
+  file = request.files['file']
+  k = json.loads(request.data)['k']
+  if file.filename != '':
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    q = get_img_vector(file)
+    lres = index.priority_knn(q, k)
+  return Response(json.dumps(lres), status = 202, mimetype="application/json")
+
+@app.route('/', methods=["GET"])
+def index():
+    return render_template("index.html")
+
+if __name__ == '__main__':
+    # index.create_inverted_index()
+    app.secret_key = ".."
+    app.run(port=8082, threaded=True, host=('127.0.0.1'))
