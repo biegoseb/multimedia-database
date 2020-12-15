@@ -100,7 +100,6 @@ class RTree:
     min_distance = sys.float_info.max
     leaf_region = None
     for leaf in self.idx.leaves():
-      print('hola')
       if self.mindist(query, leaf[2]) < min_distance: # leaf[2] -> region bounds
         min_distance = self.mindist(query, leaf[2])
         leaf_region = leaf
