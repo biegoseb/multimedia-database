@@ -6,6 +6,7 @@
           <label for="photo" class="cat-photo">
             <b-img
               class="cat-photo"
+              fluid
               :src="src === '' ? photoPlaceholder : src"
             ></b-img>
           </label>
@@ -21,18 +22,20 @@
           <b-container class="p-3">
             <b-row align-v="center">
               <b-col md="3" class="p-0">
-                Number K:
+                K results:
               </b-col>
               <b-col class="p-0">
                 <b-input v-model="k"></b-input>
               </b-col>
             </b-row>
+            <div class="row justify-content-center mt-4">
+              <button class="btn btn-primary" @click="submitFile()">
+                Submit
+              </button>
+            </div>
           </b-container>
         </v-card-text>
       </v-card>
-    </div>
-    <div class="row justify-content-end">
-      <button class="btn btn-primary" @click="submitFile()">Submit</button>
     </div>
     <div class="row">
       <v-card
@@ -43,17 +46,14 @@
       >
         <div class="image-upload">
           <label class="cat-photo">
-            <b-img
-              class="cat-photo"
-              :src="'../../../server/data/' + person[2]"
-            ></b-img>
+            <b-img class="cat-photo" :src="person[2]"></b-img>
           </label>
         </div>
         <v-card-text class="p-1">
           <b-container class="p-3">
             <b-row align-v="center">
               <b-col md="3" class="p-0">
-                Nombre:
+                Name:
               </b-col>
               <b-col class="p-0">
                 <b-input v-model="person[0]"></b-input>
@@ -61,7 +61,7 @@
             </b-row>
             <b-row align-v="center">
               <b-col md="3" class="p-0">
-                Coincidencia:
+                Distance:
               </b-col>
               <b-col class="p-0">
                 <b-input v-model="person[1]"></b-input>
@@ -83,7 +83,7 @@ export default {
     k: "",
     src: "",
     files: [],
-    photoPlaceholder: require("../static/img/38.jpg"),
+    photoPlaceholder: require("../static/img/camera.jpg"),
     response: [],
   }),
   methods: {
@@ -91,7 +91,7 @@ export default {
       const formData = new FormData();
       formData.append("file", this.files);
       const data = {
-        k: this.k == "" ? 0 : Number(this.k),
+        k: this.k == "" ? 1 : Number(this.k),
       };
       formData.append("data", JSON.stringify(data));
       axios
@@ -106,6 +106,10 @@ export default {
           console.log("Respuesta local");
           console.log(res);
           this.response = res.data;
+          for (let i = 0; i < res.data.length; i++) {
+            this.response[i][2] = require("../../../server/data/" +
+              this.response[i][2]);
+          }
         })
         .catch((e) => {
           console.log(e);
@@ -138,8 +142,10 @@ export default {
 }
 
 .cat-photo {
-  height: 40vh;
-  width: 40vh;
+  /* height: 40vh;
+  width: 40.2vw; */
+  height: 400px;
+  width: 375px;
 }
 .cat-photo img {
   object-fit: fill;
