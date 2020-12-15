@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import r_tree
 import json
 import os
+import time
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './queries/'
@@ -19,13 +20,15 @@ def query():
     filename = secure_filename(file.filename)
   file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
   q = r_tree.get_img_vector(file)
+  start_time = time.time()
   if search_type == 'range':
     radius = json.loads(request.form['data'])['radius']
     lres = index.by_range(q, radius)
   elif search_type == 'sequential':
     lres = r_tree.sequential_knn(q, k)
   else:
-    lres = index.priority_knn(q, k) 
+    lres = index.priority_knn(q, k)
+  print("--- %s seconds ---" % (time.time() - start_time))
   return Response(json.dumps(lres), status = 202, mimetype="application/json")
 
 @app.route('/', methods=["GET"])
