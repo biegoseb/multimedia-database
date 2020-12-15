@@ -176,13 +176,20 @@ CORS(app)
 
 @app.route('/query', methods=["POST"])
 def query():
-  file = request.files['file']
-  k = json.loads(request.data)['k']
-  if file.filename != '':
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    q = get_img_vector(file)
-    lres = index.priority_knn(q, k)
+  file = request.form['file']
+  print(json.loads(file))
+  k = request.form['k']
+  print('debug2')
+  # if file.filename != '':
+    # print('debug3')
+    # filename = secure_filename(file.filename)
+    # print('debug4')
+  file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+  print('debug5')
+  q = get_img_vector(file)
+  print('debug6')
+  lres = index.priority_knn(q, k)
+  print('debug7')
   return Response(json.dumps(lres), status = 202, mimetype="application/json")
 
 @app.route('/', methods=["GET"])

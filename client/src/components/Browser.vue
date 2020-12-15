@@ -49,7 +49,7 @@ export default {
   methods: {
     submitFile() {
       const formData = new FormData();
-      formData.append("file", this.file);
+      formData.append("file", this.files);
       formData.append("k", 1);
       this.progress = true;
       axios
@@ -61,9 +61,6 @@ export default {
         .then((res) => {
           console.log("Respuesta local");
           console.log(res);
-          console.log(res.data);
-          this.urlUpload = res.data;
-          this.uploadLocalVideo();
         })
         .catch((e) => {
           console.log(e);
