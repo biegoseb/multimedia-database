@@ -42,7 +42,6 @@ def get_img_vector(img):
   except IndexError as e:
     print(e, "No face detected")
 
-
 class RTree:
   idx = None
   def __init__(self):
@@ -117,3 +116,13 @@ class RTree:
     heap = [(person, -dist, img_path) for dist, person, img_path in heap]
     heap.sort(key=lambda tup:tup[1]) # O(k_results x log(k_results))
     return heap
+
+  def by_range(self, query, radius):
+    result = []
+    for person, encodings in face_encodings.items(): # O(N x D)
+      for img, encoding in encodings:
+        dist = euclidian_distance(query, encoding)
+        if dist <= radius:
+          result.append((person, dist, img))
+    result.sort(key=lambda tup:tup[1]) # O(N x logN)
+    return result
