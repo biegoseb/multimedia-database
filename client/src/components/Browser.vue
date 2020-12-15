@@ -26,10 +26,40 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
+  name: 'Browser',
   data: () => ({
     files: [],
   }),
+  methods: {
+    submitFile() {
+        const formData = new FormData()
+        formData.append('file', this.file)
+        formData.append('k', 1)
+        this.progress = true
+        axios
+          .post('http://127.0.0.1:8082/query', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+          .then((res) => {
+            console.log('Respuesta local')
+            console.log(res)
+            console.log(res.data)
+            this.urlUpload = res.data
+            this.uploadLocalVideo()
+          })
+          .catch((e) => {
+            console.log(e)
+          })
+      },
+      handleFileUpload() {
+        this.file = this.$refs.file.files[0]
+      },
+  }
 };
 </script>
 
