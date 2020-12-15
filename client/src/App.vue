@@ -1,63 +1,38 @@
 <template>
-  <!-- <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
+  <div
+    class="d-flex flex-column align-items-center justify-content-center mt-5"
+  >
+    <h1
+      style="color: #2d2d2d; font-family: 'Teko', sans-serif; font-size:3rem;"
     >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
-      <HelloWorld/>
-    </v-main>
-  </v-app> -->
-  <Browser />
+      Multimedia Browser
+    </h1>
+    <br />
+    <div class="container">
+      <Browser />
+    </div>
+  </div>
 </template>
 
 <script>
 import Browser from "./components/Browser.vue";
-//import HelloWorld from "./components/HelloWorld";
-
 export default {
   name: "App",
-
   components: {
-    //HelloWorld,
     Browser,
   },
-
-  data: () => ({
-    //
-  }),
+  data: () => ({}),
 };
 </script>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Teko:wght@500&display=swap");
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
