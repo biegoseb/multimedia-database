@@ -44,6 +44,19 @@
                 ></b-form-select>
               </b-col>
             </b-row>
+            <b-row align-v="center" v-if="search == 'range'">
+              <b-col md="4" class="p-0">
+                Radius:
+              </b-col>
+              <b-col class="p-0">
+                <b-input
+                  type="text"
+                  pattern="[0-9]+([\.,][0-9]+)?"
+                  v-model="radius"
+                  placeholder="Query radius"
+                ></b-input>
+              </b-col>
+            </b-row>
             <div class="row justify-content-center mt-4">
               <button class="btn btn-primary" @click="submitFile()">
                 Submit
@@ -121,10 +134,12 @@ export default {
     length: 1,
     total: 7,
     search: null,
+    radius: null,
     options: [
       { value: null, text: "Select an option" },
       { value: "sequential", text: "Sequential KNN" },
       { value: "priority", text: "Priority Queue KNN" },
+      { value: "range", text: "By Range" },
     ],
   }),
   computed: {
@@ -140,6 +155,9 @@ export default {
         k: this.k == "" ? 1 : Number(this.k),
         search: this.search == "" ? "priority" : this.search,
       };
+      if (this.radius != null) {
+        data["radius"] = this.radius;
+      }
       formData.append("data", JSON.stringify(data));
       axios
         .post("http://127.0.0.1:8082/query", formData, {
@@ -157,7 +175,7 @@ export default {
             this.response[i][2] = require("../../../server/data/" +
               this.response[i][2]);
           }
-          this.length = res.data.length / 6;
+          this.length = Math.floor(res.data.length / 6);
         })
         .catch((e) => {
           console.log(e);
