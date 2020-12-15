@@ -21,14 +21,6 @@
           <b-container class="p-3">
             <b-row align-v="center">
               <b-col md="3" class="p-0">
-                Nombre:
-              </b-col>
-              <b-col class="p-0">
-                <b-input v-model="nombre"></b-input>
-              </b-col>
-            </b-row>
-            <b-row align-v="center">
-              <b-col md="3" class="p-0">
                 Number K:
               </b-col>
               <b-col class="p-0">
@@ -42,6 +34,43 @@
     <div class="row justify-content-end">
       <button class="btn btn-primary" @click="submitFile()">Submit</button>
     </div>
+    <div class="row">
+      <v-card
+        :key="index"
+        width="374"
+        class="mx-auto m-2"
+        v-for="(person, index) in response"
+      >
+        <div class="image-upload">
+          <label class="cat-photo">
+            <b-img
+              class="cat-photo"
+              :src="'../../../server/data/' + person[2]"
+            ></b-img>
+          </label>
+        </div>
+        <v-card-text class="p-1">
+          <b-container class="p-3">
+            <b-row align-v="center">
+              <b-col md="3" class="p-0">
+                Nombre:
+              </b-col>
+              <b-col class="p-0">
+                <b-input v-model="person[0]"></b-input>
+              </b-col>
+            </b-row>
+            <b-row align-v="center">
+              <b-col md="3" class="p-0">
+                Coincidencia:
+              </b-col>
+              <b-col class="p-0">
+                <b-input v-model="person[1]"></b-input>
+              </b-col>
+            </b-row>
+          </b-container>
+        </v-card-text>
+      </v-card>
+    </div>
   </div>
 </template>
 
@@ -51,19 +80,18 @@ import axios from "axios";
 export default {
   name: "Browser",
   data: () => ({
-    nombre: "",
     k: "",
     src: "",
     files: [],
     photoPlaceholder: require("../static/img/38.jpg"),
+    response: [],
   }),
   methods: {
     submitFile() {
       const formData = new FormData();
       formData.append("file", this.files);
       const data = {
-        k: Number(this.k),
-        nombre: this.nombre,
+        k: this.k == "" ? 0 : Number(this.k),
       };
       formData.append("data", JSON.stringify(data));
       axios
@@ -77,6 +105,7 @@ export default {
         .then((res) => {
           console.log("Respuesta local");
           console.log(res);
+          this.response = res.data;
         })
         .catch((e) => {
           console.log(e);
