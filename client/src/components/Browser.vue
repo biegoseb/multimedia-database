@@ -1,36 +1,35 @@
 <template>
   <div class="container">
     <div class="row">
-      <!-- <v-file-input
-        color="deep-purple accent-4"
-        counter
-        label="File input"
-        multiple
-        placeholder="Select your files"
-        prepend-icon="mdi-paperclip"
-        outlined
-        :show-size="1000"
-      >
-        <template v-slot:selection="{ index, text }">
-          <v-chip
-            v-if="index < 2"
-            color="deep-purple accent-4"
-            dark
-            label
-            small
-          >
-            {{ text }}
-          </v-chip>
-
-          <span
-            v-else-if="index === 2"
-            class="overline grey--text text--darken-3 mx-2"
-          >
-            +{{ files.length - 2 }} File(s)
-          </span>
-        </template>
-      </v-file-input> -->
-      <input type="file" id="files" ref="files" multiple v-on:change="handleFileUpload()"/> 
+      <v-card width="374" key="photo" class="mx-auto m-2">
+        <div class="image-upload">
+          <label for="photo" class="cat-photo">
+            <b-img
+              class="cat-photo"
+              :src="src === '' ? photoPlaceholder : src"
+            ></b-img>
+          </label>
+          <input
+            id="photo"
+            ref="inputFile"
+            accept="image/*"
+            type="file"
+            @change="onFileChange($event)"
+          />
+        </div>
+        <v-card-text class="p-1">
+          <b-container class="p-3">
+            <b-row align-v="center">
+              <b-col md="3" class="p-0">
+                Nombre:
+              </b-col>
+              <b-col class="p-0">
+                <b-input v-model="nombre"></b-input>
+              </b-col>
+            </b-row>
+          </b-container>
+        </v-card-text>
+      </v-card>
     </div>
     <div class="row justify-content-end">
       <button class="btn btn-primary" @click="submitFile()">Submit</button>
@@ -44,18 +43,26 @@ import axios from "axios";
 export default {
   name: "Browser",
   data: () => ({
+    nombre: "",
+    src: "",
     files: [],
+    photoPlaceholder: require("../static/img/38.jpg"),
   }),
   methods: {
     submitFile() {
       const formData = new FormData();
       formData.append("file", this.files);
-      formData.append("k", 1);
-      this.progress = true;
+      const data = {
+        k: 1,
+        nombre: this.nombre,
+      };
+      formData.append("data", JSON.stringify(data));
       axios
         .post("http://127.0.0.1:8082/query", formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            /* "Content-Type": "multipart/form-data", */
+            "Content-Type": false,
+            processData: false,
           },
         })
         .then((res) => {
@@ -67,10 +74,36 @@ export default {
         });
     },
     handleFileUpload() {
-      this.files = this.$refs.files[0];
+      this.file = this.$refs.file.files[0];
+    },
+    onFileChange(e) {
+      const file = e.target.files[0];
+      this.files = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     },
   },
 };
 </script>
 
-<style></style>
+<style>
+.image-upload > input {
+  display: none;
+}
+
+.image-upload img {
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.cat-photo {
+  height: 40vh;
+  width: 40vh;
+}
+.cat-photo img {
+  object-fit: fill;
+}
+</style>
