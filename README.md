@@ -132,15 +132,15 @@ X-tree usa la eficiencia de la linealidad, explicado anteriormente, y la jerarqu
 ## Resultados experimentales
 Para la parte experimental se comparó la eficiencia en tiempos de ejecución del KNN de la estructura RTree y el KNN secuencial para esto se incrementa el tamaño de las colecciones dadas (N).
 
-# KNN Secuencial
+### KNN Secuencial
 ![knn-seq-query](./img/knn-seq-query.png)
 ![knn-seq-out](./img/knn-seq-out.png)
 
-# KNN-RTree Priority Queue
+### KNN-RTree Priority Queue
 ![knn-rtree-query](./img/knn-rtree-query.png)
 ![knn-rtree-out](./img/knn-rtree-out.png)
 
-# KNN by range
+### KNN by range
 ![knn-range-query](./img/knn-range-query.png)
 ![knn-range-out](./img/knn-range-out.png)
 
