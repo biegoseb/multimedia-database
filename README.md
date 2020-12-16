@@ -146,4 +146,4 @@ Para la parte experimental se comparó la eficiencia en tiempos de ejecución de
 
 ![graphic](./img/graphic.png)
 
-**Discusión y Análisis: ** Como se puede apreciar en el gráfico, mientras más colecciones dadas, el KNN-Secuencial va creciendo, mientras que el KNN-RTree no aumenta mucho su tiempo de ejecución. Este se debe a la estructura de arbol que este último utiliza. Sin embargo, según la tabla con pequeñas colecciones de datos, convendría usar el secuencial, pero hasta un aproximado de 100 colecciones.
+**Discusión y Análisis:** Como se puede apreciar en el gráfico, mientras más colecciones dadas, el KNN-Secuencial va creciendo, mientras que el KNN-RTree no aumenta mucho su tiempo de ejecución. Este se debe a la estructura de arbol que este último utiliza. Sin embargo, según la tabla con pequeñas colecciones de datos, convendría usar el secuencial, pero hasta un aproximado de 100 colecciones.
