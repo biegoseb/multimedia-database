@@ -125,16 +125,18 @@ X-tree usa la eficiencia de la linealidad, explicado anteriormente, y la jerarqu
 ## Resultados experimentales
 Para la parte experimental se comparó la eficiencia en tiempos de ejecución del KNN de la estructura RTree y el KNN secuencial para esto se incrementa el tamaño de las colecciones dadas (N).
 
-  | Tiempo   | KNN-RTree  	 |  KNN-Secuencial |
+  | Tiempo   | KNN-RTree (ms) 	 |  KNN-Secuencial (ms) |
   |:-------|:------------:|:----------------:|
-  |  N = 100 |               |                 |
-  |  N = 200 |               |                 |
-  |  N = 400 |               |                 |
-  |  N = 800 |               |                 |
-  | N = 1600 |               |                 |
-  | N = 3200 |               |                 |
-  | N = 6400 |               |                 |
-  |N = 12800 |               |                 |
+  |  N = 100   |   8.045    |      6.919       |
+  |  N = 200   |   5.462    |      12.321      |
+  |  N = 400   |   4.436    |      24.210      |
+  |  N = 800   |   10.244   |      47.087      |
+  | N =  1600  |   12.784   |      93.925      |
+  | N =  3200  |   16.875   |      177.118     |
+  | N =  6400  |   29.476   |      371.881     |
+  |N =   12800 |   48.769   |      824.421     |
 
 
-**Discusión y Análisis**
+![graphic](./img/graphic.png)
+
+**Discusión y Análisis: ** Como se puede apreciar en el gráfico, mientras más colecciones dadas, el KNN-Secuencial va creciendo, mientras que el KNN-RTree no aumenta mucho su tiempo de ejecución. Este se debe a la estructura de arbol que este último utiliza. Sin embargo, según la tabla con pequeñas colecciones de datos, convendría usar el secuencial, pero hasta un aproximado de 100 colecciones.
