@@ -15,6 +15,7 @@
 
 - [Introducción](#Introducción)
 - [Fundamentos y descripción de las técnicas](#Fundamentos-y-descripción-de-las-técnicas)
+- [Maldición de la dimensionalidad](#Maldición-de-la-dimensionalidad)
 - [Resultados experimentales](#Resultados-experimentales)
 
 </details>
@@ -110,6 +111,12 @@ Extrae el vector característico de la query entregada en el frontend.
 Hace una búsqueda secuencial KNN.
 
 **Descripción del código:** Primeramente recorre los vectores característicos de las imágenes y les calcula la distancia euclidiana junto a la query dada. Por último, se ordena el resultado con respecto a la distancia y se retorna los k primeros elementos.
+
+### Frontend
+
+![frontend](./img/frontend.jpeg)
+
+En cuanto al frontend, se utilizó el framework de VueJS. El programa le permitirá al usuario ingresar una imagen (preferiblemente con un rostro) y una cantidad de imágenes a recuperar. Al momento de terminar la búsqueda, este mostrará al usuario los K elementos con mayor coincidencia que se solicitó.
 
 ## Maldición de la dimensionalidad
 
