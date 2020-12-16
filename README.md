@@ -132,6 +132,18 @@ X-tree usa la eficiencia de la linealidad, explicado anteriormente, y la jerarqu
 ## Resultados experimentales
 Para la parte experimental se comparó la eficiencia en tiempos de ejecución del KNN de la estructura RTree y el KNN secuencial para esto se incrementa el tamaño de las colecciones dadas (N).
 
+# KNN Secuencial
+![knn-seq-query](./img/knn-seq-query.png)
+![knn-seq-out](./img/knn-seq-out.png)
+
+# KNN-RTree Priority Queue
+![knn-rtree-query](./img/knn-rtree-query.png)
+![knn-rtree-out](./img/knn-rtree-out.png)
+
+# KNN by range
+![knn-range-query](./img/knn-range-query.png)
+![knn-range-out](./img/knn-range-out.png)
+
   | Tiempo   | KNN-RTree (ms) 	 |  KNN-Secuencial (ms) |
   |:-------|:------------:|:----------------:|
   |  N = 100   |   8.045    |      6.919       |
@@ -146,4 +158,4 @@ Para la parte experimental se comparó la eficiencia en tiempos de ejecución de
 
 ![graphic](./img/graphic.png)
 
-**Discusión y Análisis:** Como se puede apreciar en el gráfico, mientras más colecciones dadas, el KNN-Secuencial va creciendo, mientras que el KNN-RTree no aumenta mucho su tiempo de ejecución. Este se debe a la estructura de arbol que este último utiliza. Sin embargo, según la tabla con pequeñas colecciones de datos, convendría usar el secuencial, pero hasta un aproximado de 100 colecciones.
+**Discusión y Análisis:** Como se puede apreciar en el gráfico, mientras más colecciones dadas, el KNN-Secuencial va creciendo, mientras que el KNN-RTree no aumenta mucho su tiempo de ejecución. Este se debe a la estructura de arbol que este último utiliza. Sin embargo, según la tabla con pequeñas colecciones de datos, convendría usar el secuencial, pero hasta un aproximado de 100 colecciones. Cabe resaltar, que durante todo el proceso de ejecución del proyecto y en las pruebas, no hubo problema alguno en cuanto al tamaño de la dimensión de las imágenes (128) por lo que la única operación que toma minutos es la extracción de vectores característicos de cada una de las más de 13000 imágenes en el dataset, mientras que las búsquedas se ejecutan de manera eficiente y en tiempos muy rápidos menores a 1 segundo incluso cuando el tamaño de la colección tiende a su máximo valor.
